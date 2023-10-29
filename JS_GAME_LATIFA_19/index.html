@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floppy Bird</title>
+    <link rel="icon" type="image/x-icon" href="bird.png">
+</head>
+<body>
+    <canvas id="world" width="500" height="400" style="border: 1px solid black;"></canvas>
+
+    <script>
+        // inisialisasi canvas
+        let canvas = document.getElementById('world');
+        let context = canvas.getContext('2d');
+
+        // Import Assets
+        let bird = new Image();
+        bird.src = "bird.png";
+        
+        let tuingg = new Audio();
+        tuingg.src = "tuingg.mp3";
+        tuingg.load();
+
+        // State
+            let g = 0;
+            let xBird = 0;
+            let yBird = canvas.height/2-100;
+            let wBird = 50;
+            let hBird = 50;
+            let score = 0;
+            let pipaPassed = false;
+
+        window.addEventListener("keydown",function(){
+            if(event.keyCode == 32){
+                g = g - 15;
+
+                tuingg.pause();
+                tuingg.currentTime = 0;
+                tuingg.play();
+            }
+        });
+        
+        function generatePipa() {
+            pipaHeight = Math.random() * (canvas.height - 250);
+            xPipa = canvas.width;
+            pipaPassed = false; 
+        };
+
+        let lebarPipa = 50;
+        let batasAman = 150;
+        let pipaHeight = 100;
+        let kecepatanPipa = 3;
+        let xPipa = canvas.width - lebarPipa;
+        let yPipaAtas = 0;
+        let yPipaBawah = pipaHeight + batasAman;
+
+        // Background
+        context.fillStyle = "lightyellow";
+        context.fillRect(0,0,canvas.width,canvas.height);
+
+        function checkCollision(){
+            if(xBird + wBird >= xPipa && xBird <= xPipa + lebarPipa &&(yBird <= pipaHeight || yBird + hBird >= yPipaBawah)){
+                gameOver();
+            }
+        };
+
+        // GameOver
+        function gameOver(){
+
+            alert("GameOver! | Score: " + score);
+            g = 0;
+            xBird = 0;
+            yBird = canvas.width/2 - 200;
+            wBird = 50;
+            hBird = 50;
+            xPipa = canvas.width - lebarPipa;
+            score = 0;
+        };
+
+        function drawScore() {
+            context.font = "25px calibri";
+            context.fillStyle = "black";
+            context.fillText("Score: " + score, 10, 30);
+        };
+
+        // Membuat FPS
+        window.setInterval(function(){
+            context.clearRect(0,0,canvas.width,canvas.height);
+            context.fillStyle = "lightyellow";
+            context.fillRect(0,0,canvas.width,canvas.height);
+
+            g = g + 1;
+
+            context.drawImage(bird, xBird, yBird, wBird, hBird);
+
+            yBird = yBird + g;
+
+            if(yBird >= canvas.height){
+                gameOver();
+            }
+            if(yBird < 0){
+                yBird = 0;
+                g = 0;
+            }
+
+            xPipa = xPipa - kecepatanPipa;
+
+            // Pipa
+            context.fillStyle = "green";
+            context.fillRect(xPipa, 0, 50, pipaHeight);
+            context.strokeRect(xPipa, 0, 50, pipaHeight);
+            context.fillStyle = "green";
+            context.fillRect(xPipa, pipaHeight + 100, 50, canvas.height - pipaHeight);
+            context.strokeRect(xPipa, pipaHeight + 100, 50, canvas.height - pipaHeight);
+
+            checkCollision();
+
+            if(xBird + wBird >= xPipa && xBird <= xPipa + 50 && (yBird <= pipaHeight || yBird + hBird >= pipaHeight + 100)){
+                alert("GameOver! | Score:"+ score);
+                generatePipa();
+                
+            } else if (xBird > xPipa + 50 && !pipaPassed) {
+                pipaPassed = true;
+                score++;
+                console.log(score);
+                generatePipa();
+                
+            }
+            
+            drawScore();
+        },1000/30)
+    </script>
+</body>
+</html>
